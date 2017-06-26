@@ -55,24 +55,24 @@ void opencv_mat_object_destroy(void *object TSRMLS_DC) {
 	opencv_mat_object *mat = (opencv_mat_object *)object;
 	zend_hash_destroy(mat->std.properties);
     	FREE_HASHTABLE(mat->std.properties);
-	
+
     	efree(mat);
 }
 
 static zend_object_value opencv_mat_object_new(zend_class_entry *ce TSRMLS_DC) {
-    	zend_object_value retval;    	
+    	zend_object_value retval;
     	zval *temp;
 	opencv_mat_object *mat = (opencv_mat_object *) ecalloc(1, sizeof(opencv_mat_object));
 
-    	mat->std.ce = ce; 
-    
+    	mat->std.ce = ce;
+
     	ALLOC_HASHTABLE(mat->std.properties);
     	zend_hash_init(mat->std.properties, 0, NULL, ZVAL_PTR_DTOR, 0); 
     	object_properties_init(&mat->std, ce);
-    
+
 	retval.handle = zend_objects_store_put(mat, NULL, (zend_objects_free_object_storage_t)opencv_mat_object_destroy, NULL TSRMLS_CC);
     	retval.handlers = zend_get_std_object_handlers();
-    
+
 	return retval;
 }
 
@@ -104,7 +104,7 @@ PHP_METHOD(OpenCV_Mat, load) {
 	opencv_mat_object *mat_obj;
 
     	PHP_OPENCV_ERROR_HANDLING();
-    
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &filename, &filename_len, &mode) == FAILURE) {
         	PHP_OPENCV_RESTORE_ERRORS();
         	return;
@@ -117,7 +117,7 @@ PHP_METHOD(OpenCV_Mat, load) {
     	mat_obj = (opencv_mat_object *) Z_OBJ_P(return_value TSRMLS_CC);
 
     	temp = imread(filename, mode);
-    	
+
 	if (temp.empty()) {
         	char *error_message = estrdup("Could not open the video file - check it exists and the codec is available");
         	zend_throw_exception(opencv_ce_cvexception, error_message, 0 TSRMLS_CC);
@@ -141,12 +141,12 @@ PHP_METHOD(OpenCV_Mat, save) {
 	long mode = 0;
 
     	PHP_OPENCV_ERROR_HANDLING();
-    	
+
 	if (zend_parse_method_parameters(ZEND_NUM_ARGS() TSRMLS_CC, getThis(), "Os|l", &mat_zval, opencv_ce_cvmat, &filename, &filename_len, &mode) == FAILURE) {
         	PHP_OPENCV_RESTORE_ERRORS();
         	return;
     	}
-    
+
 	PHP_OPENCV_RESTORE_ERRORS();
 
     	mat_object = opencv_mat_object_get(getThis() TSRMLS_CC);
@@ -171,7 +171,7 @@ const zend_function_entry opencv_mat_methods[] = {
 
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(opencv_mat) {
-	
+
 	zend_class_entry ce;
 	INIT_NS_CLASS_ENTRY(ce, "OpenCV", "Mat", opencv_mat_methods);
 	opencv_ce_cvmat = zend_register_internal_class(&ce TSRMLS_CC);
